@@ -4,8 +4,9 @@
 <!-- 设置为IUserDao接口方法提供sql语句配置 -->
 <mapper namespace="com.hgo.book.dao.IUserDao">
 
-    <select id="selectUser" resultType="java.util.HashMap">
-        SELECT * FROM user
+    <select id="checkLogin" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT token FROM user
+        where mobile = #{mobile} and password = #{password}
     </select>
 
 </mapper>
