@@ -19,6 +19,8 @@ public class BookController {
 
     @Resource
     private IBookService bookService;
+
+    @Resource
     private IUserService userService;
 
     /**
