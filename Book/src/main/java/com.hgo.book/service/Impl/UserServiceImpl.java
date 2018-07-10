@@ -2,6 +2,7 @@ package com.hgo.book.service.Impl;
 
 import com.hgo.book.dao.IUserDao;
 import com.hgo.book.service.IUserService;
+import com.hgo.book.tool.Tool;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import javax.annotation.Resource;
@@ -107,5 +108,59 @@ public class UserServiceImpl implements IUserService {
         return bookList;
     }
 
+    @Override
+    public void uploadBook(String token, String bookName, String bookAuthor, String bookDesc, String bookPrice, String bookLabel, String bookMessage, String bookCoverUrl) throws Exception {
+        String userID = "";
+        HashMap<String,Object> paramUserID = new HashMap<String,Object>();
+        paramUserID.put("token",token);
+        HashMap<String,Object> userInfo = this.userDao.checkToken(paramUserID);
+        if (null == userInfo || "".equals(userInfo)) {
+            throw new Exception("token失效，请重新登录");
+        } else {
+            userID = userInfo.get("id").toString();
+        }
+
+        HashMap<String,Object> param = new HashMap<String,Object>();
+        Tool.hashMapPutTool(param,"userID",userID);
+        Tool.hashMapPutTool(param,"bookName",bookName);
+        Tool.hashMapPutTool(param,"bookAuthor",bookAuthor);
+        Tool.hashMapPutTool(param,"bookDesc",bookDesc);
+        Tool.hashMapPutTool(param,"bookPrice",bookPrice);
+        Tool.hashMapPutTool(param,"bookLabel",bookLabel);
+        Tool.hashMapPutTool(param,"bookMessage",bookMessage);
+        Tool.hashMapPutTool(param,"bookCoverUrl",bookCoverUrl);
+        this.userDao.uploadBook(param);
+    }
+
+    @Override
+    public void borrowBook(String token, String bookID) throws Exception {
+        String userID = "";
+        HashMap<String,Object> paramUserID = new HashMap<String,Object>();
+        paramUserID.put("token",token);
+        HashMap<String,Object> userInfo = this.userDao.checkToken(paramUserID);
+        if (null == userInfo || "".equals(userInfo)) {
+            throw new Exception("token失效，请重新登录");
+        } else {
+            userID = userInfo.get("id").toString();
+        }
+
+        HashMap<String,Object> paramGetOwner = new HashMap<String,Object>();
+        Tool.hashMapPutTool(paramGetOwner,"bookID",bookID);
+        HashMap<String,Object> ownerInfo = this.userDao.getOwnerByBookID(paramGetOwner);
+        if (null == ownerInfo) {
+            throw new Exception("根据图书id找不到图书主人");
+        }
+        String ownerID = ownerInfo.get("user_id").toString();
+
+        if (ownerID.equals(userID)) {
+            throw new Exception("不能借自己的书");
+        }
+
+        HashMap<String,Object> param = new HashMap<String,Object>();
+        Tool.hashMapPutTool(param,"bookID",bookID);
+        Tool.hashMapPutTool(param,"userID",userID);
+        Tool.hashMapPutTool(param,"ownerID",ownerID);
+        this.userDao.borrowBook(param);
+    }
 
 }

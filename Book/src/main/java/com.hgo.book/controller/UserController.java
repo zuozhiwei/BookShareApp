@@ -99,4 +99,53 @@ public class UserController {
         }
         return JsonTool.returnPackage("success",null,list);
     }
+
+    /**
+     * 添加图书
+     * @param token     token
+     * @param bookName  图名
+     * @param bookAuthor    作者
+     * @param bookDesc      图书简介
+     * @param bookPrice     图书价格
+     * @param bookLabel     图书标签
+     * @param bookMessage   主人推荐
+     * @param bookCoverUrl  封面url
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "uploadBook",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+    @ResponseBody
+    public String uploadBook(
+            @RequestParam(value = "token") String token,
+            @RequestParam(value = "bookName") String bookName,
+            @RequestParam(value = "bookAuthor") String bookAuthor,
+            @RequestParam(value = "bookDesc") String bookDesc,
+            @RequestParam(value = "bookPrice") String bookPrice,
+            @RequestParam(value = "bookLabel",required = false) String bookLabel,
+            @RequestParam(value = "bookMessage",required = false) String bookMessage,
+            @RequestParam(value = "bookCoverUrl",required = false) String bookCoverUrl
+    ) throws Exception {
+        try {
+            userService.checkToken(token);
+            userService.uploadBook(token,bookName,bookAuthor,bookDesc,bookPrice,bookLabel,bookMessage,bookCoverUrl);
+        } catch (Exception e) {
+            return JsonTool.returnPackage("error",e.getMessage(),null);
+        }
+        return JsonTool.returnPackage("success",null,null);
+    }
+
+    @RequestMapping(value = "borrowBook",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+    @ResponseBody
+    public String borrowBook(
+            @RequestParam(value = "token") String token,
+            @RequestParam(value = "bookID") String bookID
+    ) throws Exception {
+        try {
+            userService.checkToken(token);
+            userService.borrowBook(token,bookID);
+        } catch (Exception e) {
+            return JsonTool.returnPackage("error",e.getMessage(),null);
+        }
+        return JsonTool.returnPackage("success",null,null);
+    }
 }

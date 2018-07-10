@@ -44,4 +44,22 @@
             where t1.book_name like %#{bookName}%
         </if>
     </select>
+
+    <insert id="uploadBook" parameterType="java.util.HashMap">
+        insert into
+        bk_book_list (book_name,book_author,book_cover_url,book_desc,book_price,book_label,book_message,user_id,create_time)
+        values (#{bookName},#{bookAuthor},#{bookCoverUrl},#{bookDesc},#{bookPrice},#{bookLabel},#{bookMessage},#{userID},now());
+    </insert>
+
+    <select id="getOwnerByBookID" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        select user_id
+        from bk_book_list
+        where id = #{bookID}
+    </select>
+
+    <insert id="borrowBook" parameterType="java.util.HashMap">
+        insert into
+        bk_borrow_record (book_id,owner_id,borrower_id,status,create_time)
+        values (#{bookID},#{ownerID},#{userID},0,now())
+    </insert>
 </mapper>

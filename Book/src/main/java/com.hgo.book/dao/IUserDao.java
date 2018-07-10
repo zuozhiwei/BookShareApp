@@ -18,4 +18,10 @@ public interface IUserDao {
     HashMap<String,Object> checkToken(HashMap<String,Object> param);
 
     List<HashMap<String,Object>> getBookList(HashMap<String,Object> param);
+
+    void uploadBook(HashMap<String,Object> param);
+
+    HashMap<String,Object> getOwnerByBookID(HashMap<String,Object> paramGetOwner);
+
+    void borrowBook(HashMap<String,Object> param);
 }
