@@ -24,4 +24,10 @@ public interface IUserDao {
     HashMap<String,Object> getOwnerByBookID(HashMap<String,Object> paramGetOwner);
 
     void borrowBook(HashMap<String,Object> param);
+
+    int returnBook(HashMap<String,Object> param);
+
+    HashMap<String,Object> checkBookStatus(HashMap<String,Object> param);
+
+    List<HashMap<String,Object>> getBorrowIngList();
 }

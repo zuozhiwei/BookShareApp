@@ -4,36 +4,42 @@
 <!-- 设置为IUserDao接口方法提供sql语句配置 -->
 <mapper namespace="com.hgo.book.dao.IUserDao">
 
+    <!--登录验证-->
     <select id="checkLogin" resultType="java.util.HashMap" parameterType="java.util.HashMap">
         SELECT token
         FROM bk_user
         where mobile = #{mobile} and password = #{password}
     </select>
 
+    <!--更新token-->
     <update id="updateToken" parameterType="java.util.HashMap">
         update bk_user
         set token = #{token}
         where mobile = #{mobile}
     </update>
 
+    <!--检查用户是否存在-->
     <select id="checkUser" resultType="java.util.HashMap" parameterType="java.util.HashMap">
         select id
         from bk_user
         where mobile = #{mobile}
     </select>
 
+    <!--用户注册-->
     <insert id="register" parameterType="java.util.HashMap">
         insert into
         bk_user (mobile,password,create_time)
         values (#{mobile},#{password},now());
     </insert>
 
+    <!--验证token-->
     <select id="checkToken" resultType="java.util.HashMap" parameterType="java.util.HashMap">
         select *
         from bk_user
         where token = #{token}
     </select>
 
+    <!--获取图书列表-->
     <select id="getBookList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
         select t1.id as book_id,t1.book_name,t1.book_author,t1.book_cover_url,t1.book_desc,t1.book_price,t1.book_label,t1.book_star,t1.book_message,t1.user_id,date_format(t1.create_time,"%Y-%m-%d %H:%i:%s") as create_time,date_format(t1.update_time,"%Y-%m-%d %H:%i:%s") as update_time,
         t2.name as user_name
@@ -45,21 +51,53 @@
         </if>
     </select>
 
+    <!--上传图书-->
     <insert id="uploadBook" parameterType="java.util.HashMap">
         insert into
         bk_book_list (book_name,book_author,book_cover_url,book_desc,book_price,book_label,book_message,user_id,create_time)
         values (#{bookName},#{bookAuthor},#{bookCoverUrl},#{bookDesc},#{bookPrice},#{bookLabel},#{bookMessage},#{userID},now());
     </insert>
 
+    <!--获取图书的主人__根据图书id-->
     <select id="getOwnerByBookID" resultType="java.util.HashMap" parameterType="java.util.HashMap">
         select user_id
         from bk_book_list
         where id = #{bookID}
     </select>
 
+    <!--借书-->
     <insert id="borrowBook" parameterType="java.util.HashMap">
         insert into
         bk_borrow_record (book_id,owner_id,borrower_id,status,create_time)
         values (#{bookID},#{ownerID},#{userID},0,now())
     </insert>
+
+    <!--还书-->
+    <select id="returnBook" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        update bk_borrow_record
+        set status = 1
+        where
+        <if test="bookID != ''">
+            book_id = #{bookID}
+            and status = 0
+        </if>
+        <if test="recordID != ''">
+            record_id = #{recordID}
+        </if>
+    </select>
+
+    <!--验证图书是否已还-->
+    <select id="checkBookStatus" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        select id
+        from bk_borrow_record
+        where book_id = #{bookID}
+        and status = 1;
+    </select>
+
+    <!--获取在借图书列表-->
+    <select id="getBorrowIngList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        select distinct (book_id)
+        from bk_borrow_record
+        where status = 0
+    </select>
 </mapper>

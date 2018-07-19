@@ -78,6 +78,7 @@ public class UserController {
      * 获取图书列表
      * @param token token
      * @param bookName 书名（不传查全部，传值模糊查询）
+     * @param borrowStatus 书的状态（0：在借中，1：空闲图书）
      * @return
      * @throws Exception
      */
@@ -85,7 +86,8 @@ public class UserController {
     @ResponseBody
     public String getBookList(
             @RequestParam(value = "token") String token,
-            @RequestParam(value = "bookName",required = false) String bookName
+            @RequestParam(value = "bookName",required = false) String bookName,
+            @RequestParam(value = "borrowStatus",required = false) String borrowStatus
     ) throws Exception {
         List<HashMap<String,Object>> list = null;
         try {
@@ -93,7 +95,7 @@ public class UserController {
                 bookName = "";
             }
             userService.checkToken(token);
-            list = userService.getBookList(bookName);
+            list = userService.getBookList(bookName,borrowStatus);
         } catch (Exception e) {
             return JsonTool.returnPackage("error",e.getMessage(),null);
         }
@@ -134,6 +136,13 @@ public class UserController {
         return JsonTool.returnPackage("success",null,null);
     }
 
+    /**
+     * 借书
+     * @param token     token
+     * @param bookID    图书id
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "borrowBook",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
     @ResponseBody
     public String borrowBook(
@@ -143,6 +152,22 @@ public class UserController {
         try {
             userService.checkToken(token);
             userService.borrowBook(token,bookID);
+        } catch (Exception e) {
+            return JsonTool.returnPackage("error",e.getMessage(),null);
+        }
+        return JsonTool.returnPackage("success",null,null);
+    }
+
+    @RequestMapping(value = "returnBook",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+    @ResponseBody
+    public String returnBook(
+            @RequestParam(value = "token") String token,
+            @RequestParam(value = "bookID", required = false) String bookID,
+            @RequestParam(value = "recordID", required = false) String recordID
+    ) throws Exception {
+        try {
+            userService.checkToken(token);
+            userService.returnBook(token,bookID,recordID);
         } catch (Exception e) {
             return JsonTool.returnPackage("error",e.getMessage(),null);
         }

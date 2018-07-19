@@ -101,10 +101,22 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<HashMap<String, Object>> getBookList(String bookName) {
+    public List<HashMap<String, Object>> getBookList(String bookName, String borrowStatus) {
         HashMap<String,Object> param = new HashMap<String,Object>();
         param.put("bookName",bookName);
         List<HashMap<String, Object>> bookList = this.userDao.getBookList(param);
+        List<HashMap<String, Object>> borrowIngList =this.userDao.getBorrowIngList();
+        int len1 = bookList.size();
+        int len2 = borrowIngList.size();
+        for (int i = 0; i<len1; i++) {
+            int isBorrow = 0;
+            for (int j = 0; j<len2; j++) {
+                if (bookList.get(i).get("id").equals(borrowIngList.get(j).get("book_id"))) {
+                    isBorrow = 1;
+                }
+            }
+            bookList.get(i).put("isBorrow",isBorrow);
+        }
         return bookList;
     }
 
@@ -160,7 +172,28 @@ public class UserServiceImpl implements IUserService {
         Tool.hashMapPutTool(param,"bookID",bookID);
         Tool.hashMapPutTool(param,"userID",userID);
         Tool.hashMapPutTool(param,"ownerID",ownerID);
+        HashMap<String,Object> bookStatus = this.userDao.checkBookStatus(param);
+        if (null != bookStatus && !"".equals(bookStatus.get("id"))) {
+            throw new Exception("书已借出，请查看其它图书");
+        }
         this.userDao.borrowBook(param);
+    }
+
+    @Override
+    public void returnBook(String token, String bookID, String recordID) throws Exception {
+        if (null == bookID && null == recordID) {
+            throw new Exception("bookID、recordID至少输入一个参数");
+        }
+        if ( ("".equals(bookID) && null == recordID) || ("".equals(recordID) && null == bookID) ) {
+            throw new Exception("参数不能都为空");
+        }
+        HashMap<String,Object> param = new HashMap<String,Object>();
+        Tool.hashMapPutTool(param,"bookID",bookID);
+        Tool.hashMapPutTool(param,"recordID",recordID);
+        int result = this.userDao.returnBook(param);
+        if (result == 0) {
+            throw new Exception("还书失败，请刷新重试");
+        }
     }
 
 }
