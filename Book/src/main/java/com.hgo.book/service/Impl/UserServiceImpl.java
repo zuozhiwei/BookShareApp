@@ -111,7 +111,9 @@ public class UserServiceImpl implements IUserService {
         for (int i = 0; i<len1; i++) {
             int isBorrow = 0;
             for (int j = 0; j<len2; j++) {
-                if (bookList.get(i).get("id").equals(borrowIngList.get(j).get("book_id"))) {
+                System.out.println(bookList.get(i).get("book_id"));
+                System.out.println(borrowIngList.get(j).get("book_id"));
+                if (bookList.get(i).get("book_id").toString().equals(borrowIngList.get(j).get("book_id").toString())) {
                     isBorrow = 1;
                 }
             }
@@ -192,7 +194,7 @@ public class UserServiceImpl implements IUserService {
         Tool.hashMapPutTool(param,"recordID",recordID);
         int result = this.userDao.returnBook(param);
         if (result == 0) {
-            throw new Exception("还书失败，请刷新重试");
+            throw new Exception("还书失败（或图书已还），请刷新重试");
         }
     }
 

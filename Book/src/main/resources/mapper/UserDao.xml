@@ -73,7 +73,7 @@
     </insert>
 
     <!--还书-->
-    <select id="returnBook" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+    <update id="returnBook" parameterType="java.util.HashMap">
         update bk_borrow_record
         set status = 1
         where
@@ -84,7 +84,7 @@
         <if test="recordID != ''">
             record_id = #{recordID}
         </if>
-    </select>
+    </update>
 
     <!--验证图书是否已还-->
     <select id="checkBookStatus" resultType="java.util.HashMap" parameterType="java.util.HashMap">

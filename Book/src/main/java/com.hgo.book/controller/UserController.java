@@ -158,6 +158,14 @@ public class UserController {
         return JsonTool.returnPackage("success",null,null);
     }
 
+    /**
+     * 还书
+     * @param token     token
+     * @param bookID    图书id（可选）
+     * @param recordID  借书记录id（可选）二选一
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "returnBook",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
     @ResponseBody
     public String returnBook(
