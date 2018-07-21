@@ -95,7 +95,7 @@ public class UserController {
                 bookName = "";
             }
             userService.checkToken(token);
-            list = userService.getBookList(bookName,borrowStatus);
+            list = userService.getBookList(bookName,borrowStatus,null);
         } catch (Exception e) {
             return JsonTool.returnPackage("error",e.getMessage(),null);
         }
@@ -180,5 +180,30 @@ public class UserController {
             return JsonTool.returnPackage("error",e.getMessage(),null);
         }
         return JsonTool.returnPackage("success",null,null);
+    }
+
+    /**
+     * 查看我的图书
+     * @param token         token
+     * @param bookName      书名（可选，模糊查询）
+     * @param bookStatus    图书状态 可选（0：在借中，1：空闲图书）
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "myBook",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+    @ResponseBody
+    public String myBook(
+            @RequestParam(value = "token") String token,
+            @RequestParam(value = "bookName",required = false) String bookName,
+            @RequestParam(value = "bookStatus",required = false) String bookStatus
+            ) throws Exception {
+        List<HashMap<String,Object>> list = null;
+        try {
+            userService.checkToken(token);
+            list = userService.getBookList(bookName,bookStatus,token);
+        } catch (Exception e) {
+            return JsonTool.returnPackage("error",e.getMessage(),null);
+        }
+        return JsonTool.returnPackage("success",null,list);
     }
 }

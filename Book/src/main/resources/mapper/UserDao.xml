@@ -46,8 +46,12 @@
         from bk_book_list t1
         left join bk_user t2
         on t1.user_id = t2.id
-        <if test="bookName != '' and null != bookName">
-            where t1.book_name like %#{bookName}%
+        where 1
+        <if test="bookName != ''">
+            and t1.book_name like %#{bookName}%
+        </if>
+        <if test="token != ''">
+            and t2.token = #{token}
         </if>
     </select>
 

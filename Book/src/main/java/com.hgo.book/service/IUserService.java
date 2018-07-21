@@ -16,11 +16,12 @@ public interface IUserService {
 
     HashMap<String,Object> checkToken(String token) throws Exception;
 
-    List<HashMap<String,Object>> getBookList(String bookName, String borrowStatus);
+    List<HashMap<String,Object>> getBookList(String bookName, String borrowStatus, String token);
 
     void uploadBook(String token, String bookName, String bookAuthor, String bookDesc, String bookPrice, String bookLabel, String bookMessage, String bookCoverUrl) throws Exception;
 
     void borrowBook(String token, String bookID) throws Exception;
 
     void returnBook(String token, String bookID, String recordID) throws Exception;
+
 }

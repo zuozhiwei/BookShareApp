@@ -79,6 +79,11 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    /**
+     * 检查手机号码是否存在
+     * @param mobile
+     * @throws Exception
+     */
     @Override
     public void checkUser(String mobile) throws Exception {
         HashMap<String,Object> param = new HashMap<String,Object>();
@@ -89,6 +94,12 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    /**
+     * 检查token是否匹配
+     * @param token
+     * @return
+     * @throws Exception
+     */
     @Override
     public HashMap<String,Object> checkToken(String token) throws Exception {
         HashMap<String,Object> param = new HashMap<String,Object>();
@@ -100,10 +111,17 @@ public class UserServiceImpl implements IUserService {
         return userInfo;
     }
 
+    /**
+     * 获取图书列表
+     * @param bookName
+     * @param borrowStatus
+     * @return
+     */
     @Override
-    public List<HashMap<String, Object>> getBookList(String bookName, String borrowStatus) {
+    public List<HashMap<String, Object>> getBookList(String bookName, String borrowStatus, String token) {
         HashMap<String,Object> param = new HashMap<String,Object>();
-        param.put("bookName",bookName);
+        Tool.hashMapPutTool(param,"bookName",bookName);
+        Tool.hashMapPutTool(param,"token",token);
         List<HashMap<String, Object>> bookList = this.userDao.getBookList(param);
         List<HashMap<String, Object>> borrowIngList =this.userDao.getBorrowIngList();
         int len1 = bookList.size();
@@ -111,17 +129,34 @@ public class UserServiceImpl implements IUserService {
         for (int i = 0; i<len1; i++) {
             int isBorrow = 0;
             for (int j = 0; j<len2; j++) {
-                System.out.println(bookList.get(i).get("book_id"));
-                System.out.println(borrowIngList.get(j).get("book_id"));
                 if (bookList.get(i).get("book_id").toString().equals(borrowIngList.get(j).get("book_id").toString())) {
                     isBorrow = 1;
                 }
             }
             bookList.get(i).put("isBorrow",isBorrow);
         }
+        if (null != borrowStatus) {
+            for (int i = 0;i < len1;i++) {
+                if (!bookList.get(i).get("isBorrow").toString().equals(borrowStatus)) {
+                    bookList.remove(i);
+                }
+            }
+        }
         return bookList;
     }
 
+    /**
+     * 上传图书
+     * @param token
+     * @param bookName
+     * @param bookAuthor
+     * @param bookDesc
+     * @param bookPrice
+     * @param bookLabel
+     * @param bookMessage
+     * @param bookCoverUrl
+     * @throws Exception
+     */
     @Override
     public void uploadBook(String token, String bookName, String bookAuthor, String bookDesc, String bookPrice, String bookLabel, String bookMessage, String bookCoverUrl) throws Exception {
         String userID = "";
@@ -146,6 +181,12 @@ public class UserServiceImpl implements IUserService {
         this.userDao.uploadBook(param);
     }
 
+    /**
+     * 借书
+     * @param token
+     * @param bookID
+     * @throws Exception
+     */
     @Override
     public void borrowBook(String token, String bookID) throws Exception {
         String userID = "";
@@ -181,6 +222,13 @@ public class UserServiceImpl implements IUserService {
         this.userDao.borrowBook(param);
     }
 
+    /**
+     * 还书
+     * @param token
+     * @param bookID
+     * @param recordID
+     * @throws Exception
+     */
     @Override
     public void returnBook(String token, String bookID, String recordID) throws Exception {
         if (null == bookID && null == recordID) {
