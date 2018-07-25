@@ -30,4 +30,6 @@ public interface IUserDao {
     HashMap<String,Object> checkBookStatus(HashMap<String,Object> param);
 
     List<HashMap<String,Object>> getBorrowIngList();
+
+    List<HashMap<String,Object>> getOutBookRecord(HashMap<String,Object> param);
 }

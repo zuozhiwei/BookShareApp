@@ -206,4 +206,29 @@ public class UserController {
         }
         return JsonTool.returnPackage("success",null,list);
     }
+
+    /**
+     * 借出的书
+     * @param token         token
+     * @param bookName      书名（可选，模糊查询）
+     * @param bookStatus    图书状态 可选（0：在借中，1：空闲图书）
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "myOutBookRecord",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+    @ResponseBody
+    public String myOutBookRecord(
+            @RequestParam(value = "token") String token,
+            @RequestParam(value = "bookName",required = false) String bookName,
+            @RequestParam(value = "bookStatus",required = false) String bookStatus
+    ) throws Exception {
+        List<HashMap<String,Object>> list = null;
+        try {
+            userService.checkToken(token);
+            list = userService.getOutBookRecord(bookName,bookStatus,token);
+        } catch (Exception e) {
+            return JsonTool.returnPackage("error",e.getMessage(),null);
+        }
+        return JsonTool.returnPackage("success",null,list);
+    }
 }

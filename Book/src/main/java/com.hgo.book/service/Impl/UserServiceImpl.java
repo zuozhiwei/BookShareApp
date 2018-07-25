@@ -246,4 +246,14 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Override
+    public List<HashMap<String, Object>> getOutBookRecord(String bookName, String bookStatus, String token) {
+        HashMap<String,Object> param = new HashMap<String,Object>();
+        Tool.hashMapPutTool(param,"bookName",bookName);
+        Tool.hashMapPutTool(param,"token",token);
+        Tool.hashMapPutTool(param,"bookStatus",bookStatus);
+        List<HashMap<String, Object>> bookList = this.userDao.getOutBookRecord(param);
+        return bookList;
+    }
+
 }
