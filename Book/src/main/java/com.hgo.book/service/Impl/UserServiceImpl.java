@@ -246,6 +246,13 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    /**
+     * 借出的书的记录
+     * @param bookName
+     * @param bookStatus
+     * @param token
+     * @return
+     */
     @Override
     public List<HashMap<String, Object>> getOutBookRecord(String bookName, String bookStatus, String token) {
         HashMap<String,Object> param = new HashMap<String,Object>();
@@ -253,6 +260,23 @@ public class UserServiceImpl implements IUserService {
         Tool.hashMapPutTool(param,"token",token);
         Tool.hashMapPutTool(param,"bookStatus",bookStatus);
         List<HashMap<String, Object>> bookList = this.userDao.getOutBookRecord(param);
+        return bookList;
+    }
+
+    /**
+     * 借入的书的记录
+     * @param bookName
+     * @param bookStatus
+     * @param token
+     * @return
+     */
+    @Override
+    public List<HashMap<String, Object>> getBorrowBookRecord(String bookName, String bookStatus, String token) {
+        HashMap<String,Object> param = new HashMap<String,Object>();
+        Tool.hashMapPutTool(param,"bookName",bookName);
+        Tool.hashMapPutTool(param,"token",token);
+        Tool.hashMapPutTool(param,"bookStatus",bookStatus);
+        List<HashMap<String, Object>> bookList = userDao.getBorrowBookRecord(param);
         return bookList;
     }
 

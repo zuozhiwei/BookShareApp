@@ -105,6 +105,7 @@
         where status = 0
     </select>
 
+    <!--借出的书的记录-->
     <select id="getOutBookRecord" resultType="java.util.HashMap" parameterType="java.util.HashMap">
         SELECT t1.id as record_id,t1.book_id,t1.borrower_id,t1.status,date_format(t1.create_time,"%Y-%m-%d %H:%i:%s") as create_time,date_format(t1.update_time,"%Y-%m-%d %H:%i:%s") as update_time,
         t2.book_name,t2.book_author,t2.book_cover_url,t2.book_desc,t2.book_price,t2.book_label,t2.book_star,t2.book_message,
@@ -115,6 +116,25 @@
         bk_user t3
         WHERE t1.borrower_id = t3.id
         AND t1.owner_id = (SELECT id FROM bk_user WHERE token = #{token})
+        <if test="bookName != ''">
+            and t2.book_name like %#{bookName}%
+        </if>
+        <if test="bookStatus != ''">
+            and t1.status =#{bookStatus}
+        </if>
+    </select>
+
+    <!--借入的书的记录-->
+    <select id="getBorrowBookRecord" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        SELECT t1.id as record_id,t1.book_id,t1.borrower_id,t1.status,date_format(t1.create_time,"%Y-%m-%d %H:%i:%s") as create_time,date_format(t1.update_time,"%Y-%m-%d %H:%i:%s") as update_time,
+        t2.book_name,t2.book_author,t2.book_cover_url,t2.book_desc,t2.book_price,t2.book_label,t2.book_star,t2.book_message,
+        t3.name as owner_name
+        FROM bk_borrow_record t1
+        LEFT JOIN bk_book_list t2
+        ON t1.book_id = t2.id,
+        bk_user t3
+        WHERE t1.owner_id = t3.id
+        AND t1.borrower_id = (SELECT id FROM bk_user WHERE token = #{token})
         <if test="bookName != ''">
             and t2.book_name like %#{bookName}%
         </if>

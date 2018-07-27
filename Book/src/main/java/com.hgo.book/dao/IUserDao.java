@@ -32,4 +32,6 @@ public interface IUserDao {
     List<HashMap<String,Object>> getBorrowIngList();
 
     List<HashMap<String,Object>> getOutBookRecord(HashMap<String,Object> param);
+
+    List<HashMap<String,Object>> getBorrowBookRecord(HashMap<String,Object> param);
 }

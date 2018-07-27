@@ -25,4 +25,6 @@ public interface IUserService {
     void returnBook(String token, String bookID, String recordID) throws Exception;
 
     List<HashMap<String,Object>> getOutBookRecord(String bookName, String bookStatus, String token);
+
+    List<HashMap<String,Object>> getBorrowBookRecord(String bookName, String bookStatus, String token);
 }
