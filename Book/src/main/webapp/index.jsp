@@ -3,7 +3,7 @@
     <title>
         图书分享项目后台
     </title>
-    <meta charset="utf8">
+    <meta charset="utf-8">
 </head>
 <body>
 hello world

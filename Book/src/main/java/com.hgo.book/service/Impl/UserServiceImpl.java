@@ -6,8 +6,9 @@ import com.hgo.book.tool.Tool;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service("userService")
 public class UserServiceImpl implements IUserService {
@@ -62,12 +63,14 @@ public class UserServiceImpl implements IUserService {
      * 注册
      * @param mobile 手机号
      * @param password 密码
+     * @param ryToken
      */
     @Override
-    public void register(String mobile, String password) throws Exception {
+    public void register(String mobile, String password, String ryToken) throws Exception {
         HashMap<String,Object> param = new HashMap<String,Object>();
         param.put("mobile",mobile);
         param.put("password",password);
+        param.put("ryToken",ryToken);
         int result = 0;
         try {
             result = this.userDao.register(param);
@@ -206,6 +209,16 @@ public class UserServiceImpl implements IUserService {
             throw new Exception("根据图书id找不到图书主人");
         }
         String ownerID = ownerInfo.get("user_id").toString();
+        String limitDay = ownerInfo.get("limit_day").toString();
+        int limitDayInt = Integer.parseInt(limitDay);
+
+        Date date=new Date();//取时间
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(calendar.DATE,limitDayInt);//把日期往后增加一天.整数往后推,负数往前移动
+        date=calendar.getTime(); //这个时间就是日期往后推一天的结果
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = formatter.format(date);
 
         if (ownerID.equals(userID)) {
             throw new Exception("不能借自己的书");
@@ -215,9 +228,30 @@ public class UserServiceImpl implements IUserService {
         Tool.hashMapPutTool(param,"bookID",bookID);
         Tool.hashMapPutTool(param,"userID",userID);
         Tool.hashMapPutTool(param,"ownerID",ownerID);
+        Tool.hashMapPutTool(param,"limit_date",dateString);
         HashMap<String,Object> bookStatus = this.userDao.checkBookStatus(param);
-        if (null != bookStatus && !"".equals(bookStatus.get("id"))) {
-            throw new Exception("书已借出，请查看其它图书");
+        if (null != bookStatus) {
+            Tool.hashMapPutTool(param,"id",bookStatus.get("id"));
+            if ("0".equals(bookStatus.get("status").toString())) {
+                if (userID.equals(bookStatus.get("borrower_id").toString())) {
+
+                    DateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date1 = format2.parse(bookStatus.get("limit_date").toString());
+                    Calendar calendar1 = new GregorianCalendar();
+                    calendar1.setTime(date1);
+                    calendar1.add(calendar1.DATE,limitDayInt);//把日期往后增加一天.整数往后推,负数往前移动
+                    date1=calendar1.getTime(); //这个时间就是日期往后推一天的结果
+                    SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
+                    String dateString1 = formatter1.format(date1);
+                    Tool.hashMapPutTool(param,"limit_date",dateString1);
+
+                    this.userDao.reBorrow(param);
+                    return;
+                } else {
+                    throw new Exception("书已借出，请查看其它图书");
+                }
+            }
+            return;
         }
         this.userDao.borrowBook(param);
     }
@@ -278,6 +312,19 @@ public class UserServiceImpl implements IUserService {
         Tool.hashMapPutTool(param,"bookStatus",bookStatus);
         List<HashMap<String, Object>> bookList = userDao.getBorrowBookRecord(param);
         return bookList;
+    }
+
+    @Override
+    public HashMap<String, Object> getRYKey() {
+
+        return userDao.getRYKey();
+    }
+
+    @Override
+    public List<HashMap<String, Object>> getUserList(String token) {
+        HashMap<String,Object> param = new HashMap<String,Object>();
+        Tool.hashMapPutTool(param,"token",token);
+        return userDao.getUserList(param);
     }
 
 }

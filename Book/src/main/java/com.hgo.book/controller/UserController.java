@@ -4,6 +4,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hgo.book.service.IUserService;
 import com.hgo.book.tool.JsonTool;
+import io.rong.RongCloud;
+import io.rong.methods.user.User;
+import io.rong.models.response.TokenResult;
+import io.rong.models.user.UserModel;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,7 +71,9 @@ public class UserController {
             @RequestParam(value = "password") String password
     ) throws Exception{
         try {
-            userService.register(mobile,password);
+            HashMap<String,Object> ryKey = userService.getRYKey();
+            String ryToken = getRYToken(ryKey.get("app_key").toString(),ryKey.get("app_secret").toString(),mobile,mobile);
+            userService.register(mobile,password,ryToken);
         } catch (Exception e) {
             return JsonTool.returnPackage("error",e.getMessage(),null);
         }
@@ -211,7 +217,7 @@ public class UserController {
      * 借出的书
      * @param token         token
      * @param bookName      书名（可选，模糊查询）
-     * @param bookStatus    图书状态 可选（0：在借中，1：已完成）
+     * @param bookStatus    图书状态 可选（0：在借中，1：已完成borrowBook）
      * @return
      * @throws Exception
      */
@@ -251,6 +257,50 @@ public class UserController {
         try {
             userService.checkToken(token);
             list = userService.getBorrowBookRecord(bookName,bookStatus,token);
+        } catch (Exception e) {
+            return JsonTool.returnPackage("error",e.getMessage(),null);
+        }
+        return JsonTool.returnPackage("success",null,list);
+    }
+
+    /**
+     * 生成融云的token
+     * @param appKey
+     * @param appSecret
+     * @param mobile
+     * @param userName
+     * @return
+     * @throws Exception
+     */
+    public String getRYToken(String appKey, String appSecret,String mobile,String userName) throws Exception {
+//        String appKey = "tdrvipkstx8q5";
+//        String appSecret = "CWGTl5iJ7fi";
+        RongCloud rongCloud = RongCloud.getInstance(appKey, appSecret);
+        User User = rongCloud.user;
+
+        UserModel user = new UserModel()
+                .setId(mobile)
+                .setName(userName)
+                .setPortrait("http://www.rongcloud.cn/images/logo.png");
+        TokenResult result = User.register(user);
+        return result.toString();
+    }
+
+    /**
+     * 获取所有用户的基本信息
+     * @param token
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "getUserList",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+    @ResponseBody
+    public String getUserList(
+            @RequestParam(value = "token") String token
+    ) throws Exception {
+        List<HashMap<String,Object>> list = null;
+        try {
+            userService.checkToken(token);
+            list = userService.getUserList(token);
         } catch (Exception e) {
             return JsonTool.returnPackage("error",e.getMessage(),null);
         }

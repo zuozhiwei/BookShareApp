@@ -10,7 +10,7 @@ public interface IUserService {
 
     String updateToken(String mobile) throws Exception;
 
-    void register(String mobile, String password) throws Exception;
+    void register(String mobile, String password, String ryToken) throws Exception;
 
     void checkUser(String mobile) throws Exception;
 
@@ -27,4 +27,8 @@ public interface IUserService {
     List<HashMap<String,Object>> getOutBookRecord(String bookName, String bookStatus, String token);
 
     List<HashMap<String,Object>> getBorrowBookRecord(String bookName, String bookStatus, String token);
+
+    HashMap<String,Object> getRYKey();
+
+    List<HashMap<String,Object>> getUserList(String token);
 }
